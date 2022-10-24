@@ -6,7 +6,7 @@ Pretotype v0.1 (221006)
 
 ![Pretotype v0.1](resource/pretotype-01.jpg)
 
-## File System
+## File Structure
 
 - [`3D-model/`](3d-model/) : 3D 모델링에 대한 자료를 모아두는 폴더
 - [`code/`](code/) : 소스코드를 모아두는 폴더
