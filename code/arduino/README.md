@@ -1,4 +1,6 @@
-# `Arduino.ino`
+# Arduino
+
+## `arduino.ino`
 
 Processor에 해당하는 Arduino에 업로드되는 코드입니다
 
