@@ -43,5 +43,5 @@ ESP32 Board Pin | Servo Pin
 ## Reference
 
 - https://en.wikipedia.org/wiki/ESP32
-- https://www.techcoil.com/blog/how-to-control-a-servo-motor-with-an-esp32-development-board/
+- https://github.com/siorTeam/project-switch/issues/4
 - https://github.com/espressif/arduino-esp32
