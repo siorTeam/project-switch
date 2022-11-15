@@ -1,7 +1,7 @@
 /**
  * @file esp32.ino
  * @author switch-team, siorTeam
- * @version 0.6.0
+ * @version 0.6.1
  * @date 2022-11-16
  * 
  * @copyright Copyright (c) 2022
