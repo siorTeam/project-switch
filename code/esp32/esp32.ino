@@ -1,69 +1,109 @@
 /**
  * @file esp32.ino
  * @author switch-team, siorTeam
- * @version 0.4.0
+ * @version 0.5.0
  * @date 2022-11-16
  * 
  * @copyright Copyright (c) 2022
  * 
  */
 
+/*****
+
+  Video: https://www.youtube.com/watch?v=oCMOYS71NIU
+  Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
+  Ported to Arduino ESP32 by Evandro Copercini
+
+  The design of creating the BLE server is:
+  1. Create a BLE Server
+  2. Create a BLE Service
+  3. Create a BLE Characteristic on the Service
+  4. Create a BLE Descriptor on the characteristic
+  5. Start the service.
+  6. Start advertising.
+
+*****/
+
 #include <BLEDevice.h>
-#include <BLEUtils.h>
 #include <BLEServer.h>
-#include <ESP32Servo.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 
-Servo serv; 
+BLEServer *pServer;
+BLEService *pService;
+BLECharacteristic *pTxCharacteristic;
+BLECharacteristic *pRxCharacteristic;
+bool deviceConnected    = false;
+bool oldDeviceConnected = false;
 
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-BLEServer         *pServer;
-BLEService        *pService;
-BLECharacteristic *pCharacteristic;
+class MyServerCallbacks: public BLEServerCallbacks {
+  void onConnect(BLEServer* pServer) {
+    deviceConnected = true;
+  };
+
+  void onDisconnect(BLEServer* pServer) {
+    deviceConnected = false;
+  };
+};
 
 class MyCallbacks: public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    std::string value = pCharacteristic->getValue();
+    std::string rxValue = pCharacteristic->getValue();
 
-    if (value.length() > 0) {
-      Serial.print("FROM MOBILE: ");
-      for (int i = 0; i < value.length(); i++) {
-        Serial.print(value[i]);
-        if(value[i] == '1'){
-          serv.write(0); 
-          delay(2000);
-        }
-        else{
-          serv.write(90); 
-          delay(2000);
-        }
+    if (rxValue.length() > 0) {
+      Serial.println("*********");
+      Serial.print("Received Value: ");
+      for (int i = 0; i < rxValue.length(); i++) {
+        Serial.print(rxValue[i]);
       }
-      Serial.println();
     }
   }
 };
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Starting BLE work!");
 
+  // Create the BLE Device
   BLEDevice::init("remote-SW");
-  pServer         = BLEDevice::createServer();
-  pService        = pServer->createService(SERVICE_UUID);
-  pCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
 
-  pCharacteristic->setCallbacks(new MyCallbacks());
-  pCharacteristic->setValue("Hello World");
+  // Create the BLE Server
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());
+
+  // Create the BLE Service
+  pService = pServer->createService(SERVICE_UUID);
+
+  // Create a BLE Characteristic
+  pTxCharacteristic = pService->createCharacteristic( CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_NOTIFY );
+  pTxCharacteristic->addDescriptor(new BLE2902());
+
+  pRxCharacteristic = pService->createCharacteristic( CHARACTERISTIC_UUID_RX, BLECharacteristic::PROPERTY_WRITE );
+  pRxCharacteristic->setCallbacks(new MyCallbacks());
+
+  // Start the service
   pService->start();
 
-  BLEAdvertising *pAdvertising = pServer->getAdvertising();
-  pAdvertising->start();
-
-  serv.setPeriodHertz(50); 
-  serv.attach(13);
+  // Start advertising
+  pServer->getAdvertising()->start();
+  Serial.println("Waiting a client connection to notify...");
 }
- 
+
 void loop() {
-  delay(2000);
+  // disconnecting
+  if (!deviceConnected && oldDeviceConnected) {
+    delay(500); // give the bluetooth stack the chance to get things ready
+    pServer->startAdvertising(); // restart advertising
+    Serial.println("Disconnected, Start Advertising");
+    oldDeviceConnected = deviceConnected;
+  }
+
+  // connecting
+  if (deviceConnected && !oldDeviceConnected) {
+    Serial.println("Connected");
+    oldDeviceConnected = deviceConnected;
+  }
 }

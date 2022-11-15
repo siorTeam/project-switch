@@ -27,7 +27,7 @@ https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
 
 Processor에 해당하는 ESP32 개발보드에 업로드되는 코드입니다
 
-서보모터의 각도를 2초마다 0도, 180도로 반복합니다
+~~서보모터의 각도를 2초마다 0도, 180도로 반복합니다~~
 
 ## Pin Setting
 
