@@ -60,19 +60,21 @@ class MyCallbacks: public BLECharacteristicCallbacks {
     if (rxValue.length() > 0) {
       Serial.println("*********");
       Serial.print("Received Value: ");
+
+      // values for TowerPro SG90
+      // https://github.com/jkb-git/ESP32Servo/blob/master/src/ESP32_Servo.h
+      serv.attach(13, 400, 2400);
       for (int i = 0; i < rxValue.length(); i++) {
         Serial.print(rxValue[i]);
 
-        if('0' == rxValue[i]){
-          serv.write(45);
-          delay(500);
-        }
-        else if('1' == rxValue[i]){
-          serv.write(135);
+        if ('0' <= rxValue[i] && rxValue[i] <= '1') {
+          if('0' == rxValue[i])       serv.write(45);
+          else if('1' == rxValue[i])  serv.write(135);
           delay(500);
         }
 
       }
+      serv.detach();
     }
   }
 };
@@ -80,7 +82,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 void setup() {
   Serial.begin(115200);
   serv.setPeriodHertz(50);
-  serv.attach(13);
 
   // Create the BLE Device
   BLEDevice::init("remote-SW");
