@@ -1,7 +1,7 @@
 /**
  * @file esp32.ino
  * @author switch-team, siorTeam
- * @version 0.6.1
+ * @version 0.6.2
  * @date 2022-11-16
  * 
  * @copyright Copyright (c) 2022
@@ -67,10 +67,11 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       for (int i = 0; i < rxValue.length(); i++) {
         Serial.print(rxValue[i]);
 
-        if ('0' <= rxValue[i] && rxValue[i] <= '1') {
-          if('0' == rxValue[i])       serv.write(45);
-          else if('1' == rxValue[i])  serv.write(135);
-          delay(500);
+        if ('0' <= rxValue[i] && rxValue[i] <= '2') {
+          if('0' == rxValue[i])       serv.write(91);
+          else if('1' == rxValue[i])  serv.write(91-16);
+          else if('2' == rxValue[i])  serv.write(91+19);
+          delay(700);
         }
 
       }
@@ -106,6 +107,12 @@ void setup() {
   // Start advertising
   pServer->getAdvertising()->start();
   Serial.println("Waiting a client connection to notify...");
+
+  // Setting initial angle
+  serv.attach(13, 400, 2400);
+  serv.write(91);
+  delay(500);
+  serv.detach();
 }
 
 void loop() {
