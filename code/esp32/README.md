@@ -28,9 +28,10 @@ https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
 Processor에 해당하는 ESP32 개발보드에 업로드되는 코드입니다
 
 - 단말기(스마트폰)에서
-  - '0'을 보내면 45도로 설정
-  - '1'을 보내면 135도로 설정
-- 각도 설정후, 0.5초 뒤에 토크가 풀림
+  - '0'을 보내면 초기각도(91도)로 설정
+  - '1'을 보내면 75도로 설정
+  - '2'을 보내면 110도로 설정
+- 각도 설정후, 0.7초 뒤에 토크가 풀림
 
 ## Pin Setting
 
