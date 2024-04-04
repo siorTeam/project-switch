@@ -13,6 +13,9 @@
    1. `esp32`를 검색하여 설치(`Espressif Systems`의 패키지)
 3. `툴 > 보드`를 `ESP32 Dev Modules`로 설정합니다
 
+### Library manager
+1. ESP32servo by Kevin Harrington, John ~~ 을 다운로드 받는다
+   
 ### Driver Set-up
 
 ESP32 보드에 있는 CP2102 칩(시리얼 통신 칩)의 드라이버를 설치합니다.
